@@ -16,7 +16,7 @@ description = {
 }
 
 dependencies = {
-  "lua ~> 5.1", "amqp ~> 1.1", "lua-cjson ~> 2.1.0"
+  "lua ~> 5.1", "amqp-client ~> 1.0.0", "lua-cjson ~> 2.1.0"
 }
 
 build = {
