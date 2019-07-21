@@ -1,28 +1,29 @@
 package = "kong-plugin-amqp"
 version = "0.0.1-1"
 
-local pluginName = package:match("^kong%-plugin%-(.+)$")  -- "myPlugin"
+local pluginName = package:match("^kong%-plugin%-(.+)$")
 
 supported_platforms = {"linux", "macosx"}
 source = {
-  url = "http://github.com/Kong/kong-plugin.git",
-  tag = "0.1.0"
+  url = "git://github.com/gsdenys/kong-plugin-amqp.git"
 }
 
 description = {
-  summary = "Kong is a scalable and customizable API Management Layer built on top of Nginx.",
-  homepage = "http://getkong.org",
+  summary = "Kong Plungin to act as an AMQP 0.9.1 client",
+  detailed = [[
+    Kong plugin to publish and receive message from AMQP server. Is strongly advisable to use RabbitMQ as AMQP provider once the amqp-client library was build and test over it
+  ]],
+  homepage = "https://github.com/gsdenys/kong-plugin-amqp",
   license = "Apache 2.0"
 }
 
 dependencies = {
-  "lua ~> 5.1", "amqp-client ~> 1.0.0", "lua-cjson ~> 2.1.0"
+  "lua ~> 5.1", "amqp-client ~> 1.2.0", "lua-cjson ~> 2.1.0", "lua-resty-uuid ~> 1.1
 }
 
 build = {
   type = "builtin",
   modules = {
-    -- TODO: add any additional files that the plugin consists of
     ["kong.plugins."..pluginName..".handler"] = "kong/plugins/"..pluginName.."/handler.lua",
     ["kong.plugins."..pluginName..".schema"] = "kong/plugins/"..pluginName.."/schema.lua",
   }
