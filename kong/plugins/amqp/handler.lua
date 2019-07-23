@@ -7,6 +7,51 @@ local plugin = require("kong.plugins.base_plugin"):extend()
 local amqp = require "amqp"
 local cjson = require("cjson")
 local uuid = require("resty.uuid")
+--local enclosure = require("kong.plugins.amqp.enclosure")
+
+local constants = require("kong.constants")
+
+local function has_amqp_module()
+  for _, v in pairs(constants.PROTOCOLS) do
+    if v == "amqp" then
+      ngx.log(ngx.DEBUG, "Kong already contains AMQP protocol!")
+      return true 
+    end
+  end
+  return false
+end
+
+local function readAll(file)
+  local f = assert(io.open(file, "rb"))
+  local content = f:read("*all")
+  f:close()
+  return content
+end
+
+--
+-- Include de amqp protocol to the constants protocol
+-- 
+local function include_amqp()
+  module_path = package.searchpath('kong.constants', package.path)
+  content = readAll(module_path)
+  
+  content = string.gsub(content, '(http = "http")', 'amqp = "http",\n  %1')
+  local f = io.open(module_path, "w")
+  f:write(content)
+  f:close()
+end
+
+
+-- constructor
+function plugin:new()
+  plugin.super.new(self, plugin_name)
+
+  ngx.log(ngx.DEBUG, has_amqp_module())
+ 
+  if not has_amqp_module() then
+    include_amqp()
+  end
+end
 
 
 ---[[ handles more initialization, but AFTER the worker process has been forked/created.
