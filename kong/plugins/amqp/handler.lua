@@ -6,6 +6,7 @@ local plugin_name = ({...})[1]:match("^kong%.plugins%.([^%.]+)")
 local plugin = require("kong.plugins.base_plugin"):extend()
 local amqp = require "amqp"
 local cjson = require("cjson")
+local uuid = require("resty.uuid")
 
 
 ---[[ handles more initialization, but AFTER the worker process has been forked/created.
@@ -19,12 +20,18 @@ end --]]
 function plugin:access(conf)
   plugin.super.access(self)
 
+  
   local ctx = amqp_get_context(conf)
   amqp_connect(ctx)
-  amqp_publish(ctx, kong.request.get_raw_body())
 
-  response = get_response("qwer-qwerqwr-qwer-qwerqwer")
+  uid = uuid.generate()
+  amqp_publish(ctx, kong.request.get_raw_body(), uid)
+
+  response = get_response(uid)
   ngx.say(response)
+  
+  ctx:teardown()
+  ctx:close()
 
   ngx.ctx.status = ngx.HTTP_CREATED
   ngx.exit(ngx.ctx.status)
@@ -42,15 +49,19 @@ end --]]
 
 
 function amqp_get_context(conf)
-  local ctx = amqp.new({
-      role = "publisher", 
-      routing_key = conf.routing_key, 
-      exchange = conf.exchange, 
-      ssl = kong.router.get_service().protocol == "https", 
-      user = conf.user, 
-      password = conf.password,
-      properties = {correlation_id = "message_id"}
-    })
+  local ctx = amqp:new({
+    role = 'producer',
+    exchange = conf.exchange,
+    routing_key = conf.routing_key,
+    ssl = kong.router.get_service().protocol == "https",
+    user = conf.user,
+    password = conf.password,
+    no_ack = false,
+    durable = true,
+    auto_delete = true,
+    exclusive = false,
+    properties = {}
+  })
 
   ngx.log(ngx.DEBUG, "AMQP context created successfully")
 
@@ -58,6 +69,7 @@ function amqp_get_context(conf)
 end
 
 function amqp_connect(ctx)
+
   ctx:connect(
     kong.router.get_service().host,
     kong.router.get_service().port
@@ -67,7 +79,7 @@ function amqp_connect(ctx)
   ngx.log(
     ngx.DEBUG, 
     "AMQP connected successfully at: ",
-    kong.router.get_service().protocol, "://",
+    "amqp://",
     kong.router.get_service().host, ":",
     kong.router.get_service().port
   )
@@ -75,8 +87,8 @@ function amqp_connect(ctx)
   return ctx
 end
 
-function amqp_publish(ctx, message)
-  local ok, err = ctx:publish(message)
+function amqp_publish(ctx, message, uid)
+  local ok, err = ctx:publish(message, {}, {correlation_id = uid})
   
   if err then
     ngx.log(ngx.ERR, "Internal server errror: ", err)
