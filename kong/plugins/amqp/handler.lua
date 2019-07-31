@@ -45,12 +45,13 @@ end
 -- constructor
 function plugin:new()
   plugin.super.new(self, plugin_name)
-
+--
   ngx.log(ngx.DEBUG, has_amqp_module())
  
   if not has_amqp_module() then
     include_amqp()
   end
+--
 end
 
 
