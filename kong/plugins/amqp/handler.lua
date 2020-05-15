@@ -7,7 +7,6 @@ local plugin = require("kong.plugins.base_plugin"):extend()
 local amqp = require "amqp"
 local cjson = require("cjson")
 local uuid = require("resty.uuid")
---local enclosure = require("kong.plugins.amqp.enclosure")
 
 local constants = require("kong.constants")
 
@@ -32,11 +31,12 @@ end
 -- Include de amqp protocol to the constants protocol
 -- 
 local function include_amqp()
-  module_path = package.searchpath('kong.constants', package.path)
-  content = readAll(module_path)
+  local module_path = package.searchpath('kong.constants', package.path)
+  local content = readAll(module_path)
+  local f = io.open(module_path, "w")
   
   content = string.gsub(content, '(http = "http")', 'amqp = "http",\n  %1')
-  local f = io.open(module_path, "w")
+  
   f:write(content)
   f:close()
 end
@@ -70,10 +70,10 @@ function plugin:access(conf)
   local ctx = amqp_get_context(conf)
   amqp_connect(ctx)
 
-  uid = uuid.generate()
+  local uid = uuid.generate()
   amqp_publish(ctx, kong.request.get_raw_body(), uid)
 
-  response = get_response(uid)
+  local response = get_response(uid)
   ngx.say(response)
   
   ctx:teardown()
@@ -92,16 +92,26 @@ function plugin:header_filter(plugin_conf)
   --ngx.status = ngx.ctx.status
 end --]]
 
-
-
 function amqp_get_context(conf)
+  local user = os.getenv("AMQP_USERNAME")
+  if user == nil then
+      user = conf.user
+      kong.log.info("using AMQP_USERNAME var")
+  end
+
+  local password = os.getenv("AMQP_PASSWORD")
+  if password == nil then
+      password = conf.password
+      kong.log.info("using AMQP_PASSWORD var")
+  end
+
   local ctx = amqp:new({
     role = 'producer',
     exchange = conf.exchange,
-    routing_key = conf.routing_key,
+    routing_key = conf.routingkey,
     ssl = kong.router.get_service().protocol == "https",
-    user = conf.user,
-    password = conf.password,
+    user = user,
+    password = password,
     no_ack = false,
     durable = true,
     auto_delete = true,
@@ -115,7 +125,6 @@ function amqp_get_context(conf)
 end
 
 function amqp_connect(ctx)
-
   ctx:connect(
     kong.router.get_service().host,
     kong.router.get_service().port
@@ -148,13 +157,13 @@ function amqp_publish(ctx, message, uid)
 end
 
 function get_response(id)
-  resp = cjson.encode({
-    uuid = id, 
+  local resp = cjson.encode({
+    uuid = id,
     time = ngx.localtime()
   })
 
   ngx.log(ngx.DEBUG, "AMQP Response body generated with ID: ", id)
-  
+
   return resp
 end
 
