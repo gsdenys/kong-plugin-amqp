@@ -8,7 +8,19 @@ __IMPORTANT:__ _As this one use the template designed to work with the `kong-vag
 
 This section shows how to install this one in a built in kong docker image.
 
-1) Create a Dockerfile with the content below.
+1) Create a new folder and download the package 1.0.0 using command below.
+
+    ```sh
+    # Create a new Folder
+    $ mkdir kong-plugin-amqp
+    $ cd kong-plugin-amqp
+
+    #download the lua rock package
+    $wget [link-pagkage]
+    ```
+
+
+2) Create a Dockerfile with the content below.
     ```docker
     FROM kong:2.0
 
@@ -23,12 +35,12 @@ This section shows how to install this one in a built in kong docker image.
     USER kong
     ```
 
-2) Execute the command below to generate the dist.
+3) Execute the command below to generate the dist.
 
     ```sh
     $ docker build --tag kong-plugin-amqp .
     ```
-3) Now, run the container using the commands below.
+4) Now, run the container using the commands below.
 
     ```sh
     # Start Kong Postgres Database
