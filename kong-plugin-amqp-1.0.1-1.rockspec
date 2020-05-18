@@ -1,7 +1,7 @@
 package = "kong-plugin-amqp"
-version = "1.0.0-1"
+version = "1.0.1-1"
 
-local pluginName = "kong-plugin-amqp"
+local pluginName = "amqp"
 
 supported_platforms = {"linux", "macosx"}
 source = {
@@ -24,7 +24,7 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
-    ["kong."..pluginName..".handler"] = "kong/plugins/"..pluginName.."/handler.lua",
+    ["kong.plugins."..pluginName..".handler"] = "kong/plugins/"..pluginName.."/handler.lua",
     ["kong.plugins."..pluginName..".schema"] = "kong/plugins/"..pluginName.."/schema.lua",
   }
 }

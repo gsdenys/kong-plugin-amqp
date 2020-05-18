@@ -31,7 +31,7 @@ $ cd kong-vagrant
 $ git clone https://github.com/Kong/kong
 
 # clone the this repo (inside the vagrant one)
-$ https://github.com/gsdenys/kong-plugin-amqp.git
+$ git clone https://github.com/gsdenys/kong-plugin-amqp.git kong-plugin
 
 # build a box with a folder synced to your local Kong and plugin sources
 $ vagrant up
