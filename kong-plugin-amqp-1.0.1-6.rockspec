@@ -1,11 +1,12 @@
 package = "kong-plugin-amqp"
-version = "1.0.1-1"
+version = "1.0.1-6"
 
 local pluginName = "amqp"
 
 supported_platforms = {"linux", "macosx"}
 source = {
-  url = "git://github.com/gsdenys/kong-plugin-amqp.git"
+  url = "git://github.com/gsdenys/kong-plugin-amqp.git",
+  branche = "doc-usage"
 }
 
 description = {
