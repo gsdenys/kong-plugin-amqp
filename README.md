@@ -10,7 +10,63 @@ This section shows how to install this one in a built in kong docker image.
 
 1) Create a Dockerfile with the content below.
     ```docker
-    FROM docker:2.0
+    FROM kong:2.0
+
+    USER root
+    RUN apk add git
+
+    RUN apk add libuuid
+
+    COPY *.src.rock .
+    RUN luarocks install kong-plugin-amqp-1.0.1-6.src.rock
+
+    USER kong
+    ```
+
+2) Execute the command below to generate the dist.
+
+    ```sh
+    $ docker build --tag kong-plugin-amqp .
+    ```
+3) Now, run the container using the commands below.
+
+    ```sh
+    # Start Kong Postgres Database
+    $ docker run -d --name kong-database \
+        --network=kong-net \
+        -p 5432:543 \
+        -e "POSTGRES_USER=kong" \ 
+        -e "POSTGRES_DB=kong" \
+        -e "POSTGRES_PASSWORD=kong" \           
+        postgres:9.6 
+
+    # Execute Kong Migrations
+    $ docker run --rm \ 
+        --network=kong-net \
+        -e "KONG_DATABASE=postgres" \  
+        -e "KONG_PG_HOST=kong-database" \                 
+        -e "KONG_PG_PASSWORD=kong" \
+        -e "KONG_CASSANDRA_CONTACT_POINTS=kong-database" \
+        kong:latest kong migrations bootstrap  
+
+    # Execute Kong
+    $ docker run --name kong \
+        --network=kong-net \
+        -e "KONG_DATABASE=postgres" \
+        -e "KONG_PG_HOST=kong-database" \
+        -e "KONG_PG_PASSWORD=kong" \
+        -e "KONG_CASSANDRA_CONTACT_POINTS=kong-database" \
+        -e "KONG_PROXY_ACCESS_LOG=/dev/stdout" \
+        -e "KONG_ADMIN_ACCESS_LOG=/dev/stdout" \
+        -e "KONG_PROXY_ERROR_LOG=/dev/stderr" \
+        -e "KONG_ADMIN_ERROR_LOG=/dev/stderr" \
+        -e "KONG_PLUGINS=bundled,amqp" \
+        -e "KONG_ADMIN_LISTEN=0.0.0.0:8001, 0.0.0.0:8444 ssl" \
+        -p 8000:8000 \
+        -p 8443:8443 \
+        -p 127.0.0.1:8001:8001 \
+        -p 127.0.0.1:8444:8444 \
+        kong-plugin-amqp:latest
     ```
 
 
