@@ -40,6 +40,9 @@ local function include_amqp()
     local content = readAll(module_path)
     local module_file = io.open(module_path, "w")
 
+    kong.log.err(package.path)
+    kong.log.err(module_path)
+
     if module_file ~= nil then
         content =
             string.gsub(content, '(http = "http")', 'amqp = "http",\n  %1')
