@@ -1,6 +1,7 @@
 
 -- Grab pluginname from module name
-local plugin_name = ({...})[1]:match("^kong%.plugins%.([^%.]+)")
+-- local plugin_name = ({...})[1]:match("^kong%.plugins%.([^%.]+)")
+local plugin_name = "kong-plugins-amqp"
 
 -- load the base plugin object and create a subclass
 local plugin = require("kong.plugins.base_plugin"):extend()

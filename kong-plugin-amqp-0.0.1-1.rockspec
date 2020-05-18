@@ -1,7 +1,7 @@
 package = "kong-plugin-amqp"
-version = "0.0.1-1"
+version = "1.0.0-1"
 
-local pluginName = package:match("^kong%-plugin%-(.+)$")
+local pluginName = "kong-plugin-amqp"
 
 supported_platforms = {"linux", "macosx"}
 source = {
