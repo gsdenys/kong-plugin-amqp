@@ -16,9 +16,8 @@ This section shows how to install this one in a built in kong docker image.
     $ cd kong-plugin-amqp
 
     #download the lua rock package
-    $wget [link-pagkage]
+    $wget https://github.com/gsdenys/kong-plugin-amqp/releases/download/1.0.0/kong-plugin-amqp-1.0.0-6.src.rock
     ```
-
 
 2) Create a Dockerfile with the content below.
     ```docker
@@ -27,10 +26,11 @@ This section shows how to install this one in a built in kong docker image.
     USER root
     RUN apk add git
 
+    # This lib is required by lua uuid package
     RUN apk add libuuid
 
     COPY *.src.rock .
-    RUN luarocks install kong-plugin-amqp-1.0.1-6.src.rock
+    RUN luarocks install kong-plugin-amqp-1.0.0-6.src.rock
 
     USER kong
     ```
