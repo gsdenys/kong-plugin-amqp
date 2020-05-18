@@ -1,11 +1,12 @@
 package = "kong-plugin-amqp"
-version = "0.0.1-1"
+version = "1.0.0-6"
 
-local pluginName = package:match("^kong%-plugin%-(.+)$")
+local pluginName = "amqp"
 
 supported_platforms = {"linux", "macosx"}
 source = {
-  url = "git://github.com/gsdenys/kong-plugin-amqp.git"
+  url = "git://github.com/gsdenys/kong-plugin-amqp.git",
+  tag = "1.0.0"
 }
 
 description = {
@@ -24,7 +25,7 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
-    ["kong."..pluginName..".handler"] = "kong/plugins/"..pluginName.."/handler.lua",
+    ["kong.plugins."..pluginName..".handler"] = "kong/plugins/"..pluginName.."/handler.lua",
     ["kong.plugins."..pluginName..".schema"] = "kong/plugins/"..pluginName.."/schema.lua",
   }
 }
