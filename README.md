@@ -95,33 +95,140 @@ This section shows how to install this one in a built in kong docker image.
     $ curl -X GET http://localhost:8001
     ```
 
+    and search by:
+
+    ```json
+    "plugins": {
+        // ...
+        "available_on_server": {
+            // ...
+            "amqp": true,
+            // ...
+        }
+    }
+    ```
+
 2) create a service using the protocol `amqp`.
 
     ```sh
-    $ curl -X POST http://localhost:8001/services
+    $ curl -i -X POST \
+        --url http://localhost:8001/services/ \
+        --data 'name=example-service' \
+        --data 'url=amqp://rabbitamqp' \
+        --data 'port=5672'
+    ```
+    the result is:
+
+    ```json
+    {
+        "host":"rabbitamqp",
+        "created_at":1589889979,
+        "connect_timeout":60000,
+        "id":"e5820acd-5d40-4547-aa15-5fb45d8bab75",
+        "protocol":"amqp",
+        "name":"example-service",
+        "read_timeout":60000,
+        "port":5672,
+        "path":null,
+        "updated_at":1589889979,
+        "retries":5,
+        "write_timeout":60000,
+        "tags":null,
+        "client_certificate":null
+    }
     ```
 
 3) Add the plugin to the service
 
     ```sh
-    $ curl -X POST http://localhost:8001/services/test-service/plugins
+    $ curl -i -X POST \
+        --url http://localhost:8001/services/example-service/plugins/ \
+        --data 'name=amqp' \
+        --data 'config.routingkey=test'
+    ```
+
+    the result is:
+
+    ```json
+    {
+        "created_at":1589890576,
+        "config":{
+            "routingkey":"test",
+            "user":"guest",
+            "password":"guest",
+            "exchange":""
+        },
+        "id":"6b562949-a592-4f3d-bc3d-4b37bbba0c68",
+        "service":{
+            "id":"e5820acd-5d40-4547-aa15-5fb45d8bab75"
+        },
+        "enabled":true,
+        "protocols":["amqp","grpc","grpcs","http","https"],
+        "name":"amqp",
+        "consumer":null,
+        "route":null,
+        "tags":null
+    }
     ```
 
 4) Create a route
 
     ```sh
-    $ curl -X POST http://localhost:8001/services/test-service/routes
+    $ curl -i -X POST \
+        --url http://localhost:8001/services/example-service/routes \
+        --data 'paths[]=/amqp-example'
+    ```
+
+    the result is:
+
+    ```json
+    {
+        "id":"ba7eb735-969b-4adf-966b-4e0d8213a752",
+        "path_handling":"v0",
+        "paths":["\/amqp-example"],
+        "destinations":null,
+        "headers":null,
+        "protocols":["http","https"],
+        "methods":null,
+        "snis":null,
+        "service":{
+            "id":"e5820acd-5d40-4547-aa15-5fb45d8bab75"
+        },
+        "name":null,
+        "strip_path":true,
+        "preserve_host":false,
+        "regex_priority":0,
+        "updated_at":1589890208,
+        "sources":null,
+        "hosts":null,
+        "https_redirect_status_code":426,
+        "tags":null,
+        "created_at":1589890208
+    }
     ```
 
 5) Bind though the created route
 
     ```sh
-    $ curl -X POST http://localhost:8000/amqp/test
+    $ curl -X POST http://localhost:8000/amqp-example \
+        --data '{"hello":"world"}' \
+        -H "Content-Type:application/json"
+    ```
+
+    the result is:
+
+    ```json
+    {
+        "uuid":"9da7f847-b069-49f2-8b43-e49c520d66fd",
+        "time":"2020-05-19 12:34:49"
+    }
     ```
 
 6) Check if the Rabbit has the message.
 
+![RabbitMQ Message Add](../media/rabbit-1.png?raw=true)
 
+![RabbitMQ Message Stored](../media/rabbit-2.png?raw=true)
 
 ## Develop 
 

@@ -5,7 +5,8 @@ local pluginName = "amqp"
 
 supported_platforms = {"linux", "macosx"}
 source = {
-  url = "git://github.com/gsdenys/kong-plugin-amqp.git"
+  url = "git://github.com/gsdenys/kong-plugin-amqp.git",
+  tag = "1.0.0-RC1"
 }
 
 description = {
