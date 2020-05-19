@@ -32,15 +32,21 @@ This section shows how to install this one in a built in kong docker image.
     COPY *.src.rock .
     RUN luarocks install kong-plugin-amqp-1.0.0-6.src.rock
 
+    # This is required because this plugin needs to write a kong core file
+    # Issue #8 https://github.com/gsdenys/kong-plugin-amqp/issues/8
+    # the better is kong provide a protocol extension point
+    RUN /usr/local/openresty/luajit/bin/luajit /usr/local/share/lua/5.1/kong/plugin/amqp/prepare.lua
+
     USER kong
     ```
 
-3) Execute the command below to generate the dist.
+3) Execute the command to generate the dist.
 
     ```sh
     $ docker build --tag kong-plugin-amqp .
     ```
-4) Now, run the container using the commands below.
+
+4) Now, run the containers.
 
     ```sh
     # Start Kong Postgres Database
@@ -80,6 +86,41 @@ This section shows how to install this one in a built in kong docker image.
         -p 127.0.0.1:8444:8444 \
         kong-plugin-amqp:latest
     ```
+
+## Usage
+
+1) Check if the plugin are installed execution the following command.
+
+    ```sh
+    $ curl -X GET http://localhost:8001
+    ```
+
+2) create a service using the protocol `amqp`.
+
+    ```sh
+    $ curl -X POST http://localhost:8001/services
+    ```
+
+3) Add the plugin to the service
+
+    ```sh
+    $ curl -X POST http://localhost:8001/services/test-service/plugins
+    ```
+
+4) Create a route
+
+    ```sh
+    $ curl -X POST http://localhost:8001/services/test-service/routes
+    ```
+
+5) Bind though the created route
+
+    ```sh
+    $ curl -X POST http://localhost:8000/amqp/test
+    ```
+
+6) Check if the Rabbit has the message.
+
 
 
 ## Develop 

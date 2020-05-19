@@ -5,9 +5,7 @@
 local constants = require("kong.constants")
 
 local function has_amqp_module()
-    print(constants.PROTOCOLS)
     for _, v in pairs(constants.PROTOCOLS) do
-        print(v)
         if v == "amqp" then
             return true
         end
