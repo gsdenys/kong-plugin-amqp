@@ -43,6 +43,17 @@ This section shows how to install this one in a built in kong docker image.
 4) Now, run the containers.
 
     ```sh
+    #Create a kong networt
+    $ docker network create kong-net
+
+    # Start RabbitMQ
+    $ docker run -d --name rabbitmq \
+        --network=kong-net \
+        -p 8080:15672 \
+        -p 5672:5672 \
+        -p 25676:25676 \
+        rabbitmq:3-management
+
     # Start Kong Postgres Database
     $ docker run -d --name kong-database \
         --network=kong-net \
@@ -53,16 +64,16 @@ This section shows how to install this one in a built in kong docker image.
         postgres:9.6 
 
     # Execute Kong Migrations
-    $ docker run --rm \ 
-        --network=kong-net \
-        -e "KONG_DATABASE=postgres" \  
-        -e "KONG_PG_HOST=kong-database" \                 
-        -e "KONG_PG_PASSWORD=kong" \
-        -e "KONG_CASSANDRA_CONTACT_POINTS=kong-database" \
-        kong:latest kong migrations bootstrap  
+        $ docker run --rm \ 
+            --network=kong-net \
+            -e "KONG_DATABASE=postgres" \  
+            -e "KONG_PG_HOST=kong-database" \                 
+            -e "KONG_PG_PASSWORD=kong" \
+            -e "KONG_CASSANDRA_CONTACT_POINTS=kong-database" \
+            kong:2.0 kong migrations bootstrap  
 
     # Execute Kong
-    $ docker run --name kong \
+    $ docker run -d --name kong \
         --network=kong-net \
         -e "KONG_DATABASE=postgres" \
         -e "KONG_PG_HOST=kong-database" \
@@ -79,6 +90,15 @@ This section shows how to install this one in a built in kong docker image.
         -p 127.0.0.1:8001:8001 \
         -p 127.0.0.1:8444:8444 \
         kong-plugin-amqp:latest
+    ```
+
+5) crete a queue on rabbitmq
+
+    ```sh
+    # create a rabbitmq queue
+    $ curl -i -u guest:guest -H "content-type:application/json" \
+        -X PUT -d'{"durable":true}' \
+        http://localhost:8080/api/queues/%2f/test
     ```
 
 ## Usage
@@ -105,8 +125,7 @@ This section shows how to install this one in a built in kong docker image.
     $ curl -i -X POST \
         --url http://localhost:8001/services/ \
         --data 'name=example-service' \
-        --data 'url=amqp://rabbitamqp' \
-        --data 'port=5672'
+        --data 'url=amqp://rabbitmq:5672'
     ```
     the result is:
 
