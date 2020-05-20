@@ -10,13 +10,14 @@ This section shows how to install this one in a built in kong docker image.
 
 1) Create a new folder and download the package 1.0.0 using command below.
 
-    ```sh
+```sh
     # Create a new Folder
     $ mkdir kong-plugin-amqp
     $ cd kong-plugin-amqp
+```
 
 2) Create a Dockerfile with the content below.
-    ```docker
+```docker
     FROM kong:2.0
 
     USER root
@@ -32,17 +33,17 @@ This section shows how to install this one in a built in kong docker image.
     RUN /usr/local/openresty/luajit/bin/luajit /usr/local/share/lua/5.1/kong/plugins/amqp/prepare.lua
 
     USER kong
-    ```
+```
 
 3) Execute the command to generate the dist.
 
-    ```sh
+```sh
     $ docker build --tag kong-plugin-amqp .
-    ```
+```
 
 4) Now, run the containers.
 
-    ```sh
+```sh
     #Create a kong networt
     $ docker network create kong-net
 
@@ -90,46 +91,46 @@ This section shows how to install this one in a built in kong docker image.
         -p 127.0.0.1:8001:8001 \
         -p 127.0.0.1:8444:8444 \
         kong-plugin-amqp:latest
-    ```
+```
 
 5) crete a queue on rabbitmq
 
-    ```sh
+```sh
     # create a rabbitmq queue
     $ curl -i -u guest:guest -H "content-type:application/json" \
         -X PUT -d'{"durable":true}' \
         http://localhost:8080/api/queues/%2f/test
-    ```
+```
 
 ## Usage
 
 1) Check if the plugin are installed execution the following command.
 
-    ```sh
+```sh
     $ curl -X GET http://localhost:8001
-    ```
+```
 
     and search by:
 
-    ```json
+```json
     "plugins": {
         "available_on_server": {
             "amqp": true,
         }
     }
-    ```
+```
 
 2) create a service using the protocol `amqp`.
 
-    ```sh
+```sh
     $ curl -i -X POST \
         --url http://localhost:8001/services/ \
         --data 'name=example-service' \
         --data 'url=amqp://rabbitmq:5672'
-    ```
+```
     the result is:
 
-    ```json
+```json
     {
         "host":"rabbitamqp",
         "created_at":1589889979,
@@ -146,20 +147,20 @@ This section shows how to install this one in a built in kong docker image.
         "tags":null,
         "client_certificate":null
     }
-    ```
+```
 
 3) Add the plugin to the service
 
-    ```sh
+```sh
     $ curl -i -X POST \
         --url http://localhost:8001/services/example-service/plugins/ \
         --data 'name=amqp' \
         --data 'config.routingkey=test'
-    ```
+```
 
     the result is:
 
-    ```json
+```json
     {
         "created_at":1589890576,
         "config":{
@@ -179,19 +180,19 @@ This section shows how to install this one in a built in kong docker image.
         "route":null,
         "tags":null
     }
-    ```
+```
 
 4) Create a route
 
-    ```sh
+```sh
     $ curl -i -X POST \
         --url http://localhost:8001/services/example-service/routes \
         --data 'paths[]=/amqp-example'
-    ```
+```
 
     the result is:
 
-    ```json
+```json
     {
         "id":"ba7eb735-969b-4adf-966b-4e0d8213a752",
         "path_handling":"v0",
@@ -215,24 +216,24 @@ This section shows how to install this one in a built in kong docker image.
         "tags":null,
         "created_at":1589890208
     }
-    ```
+```
 
 5) Bind though the created route
 
-    ```sh
+```sh
     $ curl -X POST http://localhost:8000/amqp-example \
         --data '{"hello":"world"}' \
         -H "Content-Type:application/json"
-    ```
+```
 
     the result is:
 
-    ```json
+```json
     {
         "uuid":"9da7f847-b069-49f2-8b43-e49c520d66fd",
         "time":"2020-05-19 12:34:49"
     }
-    ```
+```
 
 6) Check if the Rabbit has the message.
 
