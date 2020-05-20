@@ -267,8 +267,16 @@ $ vagrant ssh
 $ cd /kong
 $ make dev
 
+# install zip - required by luarocks pack
+$ sudo apt-get install zip
+
 # export the kong plugin configuration (tell Kong to load it)
-$ export KONG_PLUGINS=bundled,kong-plugin-amqp
+$ export KONG_PLUGINS=bundled,amqp
+
+#install plugin on kong core and their deps
+$ cd /kong-plugin
+$ luarocks install kong-plugin-amqp-1.0.0-6.rockspec --only-deps
+$ luajit kong/plugins/amqp/prepare.lua
 
 # We need to ensure that migrations are up to date
 $ cd /kong
@@ -276,4 +284,9 @@ $ bin/kong migrations bootstrap
 
 # Start up kong
 $ bin/kong start
+
+#install rabbitmq
+cd /home/kong
+wget https://gist.githubusercontent.com/gsdenys/882d1aeb4f754c35121dcfa05ff1c6aa/raw/47f44dfd43ae7a06b64b2011d0406951fd25bbd2/install-rabbitmq-ubuntu-18.sh
+sh install-rabbitmq-ubuntu-18.sh
 ``` 
