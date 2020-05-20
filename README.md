@@ -110,7 +110,7 @@ This section shows how to install this one in a built in kong docker image.
     $ curl -X GET http://localhost:8001
 ```
 
-    and search by:
+and search by:
 
 ```json
     "plugins": {
@@ -128,7 +128,7 @@ This section shows how to install this one in a built in kong docker image.
         --data 'name=example-service' \
         --data 'url=amqp://rabbitmq:5672'
 ```
-    the result is:
+the result is:
 
 ```json
     {
@@ -158,7 +158,7 @@ This section shows how to install this one in a built in kong docker image.
         --data 'config.routingkey=test'
 ```
 
-    the result is:
+the result is:
 
 ```json
     {
@@ -190,7 +190,7 @@ This section shows how to install this one in a built in kong docker image.
         --data 'paths[]=/amqp-example'
 ```
 
-    the result is:
+the result is:
 
 ```json
     {
@@ -226,7 +226,7 @@ This section shows how to install this one in a built in kong docker image.
         -H "Content-Type:application/json"
 ```
 
-    the result is:
+the result is:
 
 ```json
     {
