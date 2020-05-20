@@ -286,7 +286,5 @@ $ bin/kong migrations bootstrap
 $ bin/kong start
 
 #install rabbitmq
-cd /home/kong
-wget https://gist.githubusercontent.com/gsdenys/882d1aeb4f754c35121dcfa05ff1c6aa/raw/47f44dfd43ae7a06b64b2011d0406951fd25bbd2/install-rabbitmq-ubuntu-18.sh
-sh install-rabbitmq-ubuntu-18.sh
+curl https://gist.githubusercontent.com/gsdenys/882d1aeb4f754c35121dcfa05ff1c6aa/raw/ | sh
 ``` 
